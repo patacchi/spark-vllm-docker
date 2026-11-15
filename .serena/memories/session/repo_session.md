@@ -1,21 +1,25 @@
 # Session anchor (Agent mode)
 
-- session_key: sess-glm47-phantom-fallback-20261115 (Task 2 ADOPTED + live-verified; Task 3 IN PROGRESS: issue/PR drafts next)
+- session_key: sess-glm47-phantom-fallback-20261115 (Task 2 ADOPTED; Task 3 issues POSTED (#463/#464/#465), PRs NEXT)
 - map_visible: YES (mod + test + recipe + README changes, commits 505d45c/f7d284d)
 - workspace: fork /home/punipower/gitrepos/patacchi/spark-vllm-docker, branch ops-glm53-local
   (16 commits ahead of origin, push disabled; latest a043368)
 - Previous session: sess-glm47-stray-tool-start-20261115 — CLOSED (Task 1: mods/fix-glm47-stray-tool-start, live-verified, commits 5f8aa0f..27131c6). Plan + full debug history: read `mem:troubleshooting`.
 
-## CURRENT POSITION (compact-safe checkpoint, 2026-11-15)
+## CURRENT POSITION (compact-safe checkpoint, 2026-11-15 23:00)
 
-Task 2 DONE: mods/fix-glm47-phantom-fallback adopted (live v1+v2 PASS, order matrix 15/15,
-boundary tests done, offline 17/17). Task 3 NEXT STEP: draft the two NEW issues (A:
-phantom-fallback experimental; C: stray-tool-start) for eugr/spark-vllm-docker, show the user
-the FULL text of each before posting (standing approval rule), then update #463 (B) with the
-separation rationale + cross-links, then PRs. Conventions + push mechanics: entry research.md
-(no experimental label exists; #459 = precedent; PR body pattern = our #462; origin push =
-no_push → PR branch push needs a fork remote decision by the user). Full strategy + draft
-content guidance: mem:troubleshooting "DECIDED: upstream/PR strategy" + "MOD CLASSIFICATION".
+Issues POSTED: #464 (C stray-tool-start), #465 (A phantom-fallback experimental, incl.
+"How to apply" section), #463 retitled + body edit (comparison table, rationale, nvidia/).
+Standing rules added by user (BINDING): reference ONLY officially git-tracked recipes —
+NEVER recipes/modified/... (local-only) in public posts; model names with org prefix
+(nvidia/GLM-5.3-Flash-FP4-Local); titles = model first, purpose, (glm47 parser; ...);
+companion-mod requirement stated in READMEs + PR bodies.
+PRs NEXT: one dedicated branch per PR, fresh from upstream/main, PR files only (no
+.serena/.mcp.json/recipes-modified); C PR wires the official recipes/glm-5.3-flash.yaml,
+A PR has no recipe wiring (experimental). origin = patacchi fork with a NORMAL push URL
+(old no_push memory is STALE). PR body pattern: #462 (Overview/Claims/Validation/disclosure).
+Doc pass folds into the PRs (README fixes: local-recipe refs, Status wording, companion
+mentions). Details: mem:troubleshooting "POSTED" + "NEW STANDING RULES" + "Task 3 doc-pass".
 
 ## Task 2 [mod-phantom-fallback-eval] — from mem:troubleshooting "Current plan"
 

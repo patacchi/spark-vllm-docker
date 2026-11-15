@@ -287,3 +287,66 @@ the VS Code workspace to the fork, that memory must be read from
 - Serena `core` map retrofitted with Rule 3 headers (full-replacement after apply_core_delta
   refused header-only vs headerless map); full restructure (sections, recipes/backup
   staleness, .github/.mcp.json/.serena coverage) is Task 2's Explorer's job.
+
+## Task 3 draft revisions (user feedback, 2026-11-15 22:14) — BINDING for all posts (incl. #463)
+
+- Title style (user, final): MODEL NAME FIRST, then the purpose in extreme brevity, then
+  "(glm47 parser; ...)". USER: titles MUST carry the model — which model it occurred on is
+  a major triage branch (2026-11-15 22:14, two review rounds).
+  - C: "nvidia/GLM-5.3-Flash-FP4-Local: stop a stray tool-call opener in prose from swallowing the rest of the message and the real tool call that follows (glm47 parser; tracked upstream: vllm-project/vllm#60703)"
+  - A: "nvidia/GLM-5.3-Flash-FP4-Local: return prose swallowed by a stray tool-call opener to the user as message content (experimental glm47 parser mod; related: vllm-project/vllm#60703)"
+  - B: RETITLE #463 to "nvidia/GLM-5.3-Flash-FP4-Local: deliver tool calls with unknown names instead of silently dropping them (glm47 parser; empty responses + agent-client retry loop; tracked upstream: vllm-project/vllm#67684)"
+  (Same principle will apply to the later PR titles.)
+- EVERY mod issue/PR (A, C, and the #463 update) carries a shared comparison table:
+  columns Without-the-mod / With-the-mod / Mod / Issue / PR; rows B=#463/#462, C, A(experimental).
+  Self-row marked "this issue"; in the C post A's row says "link to follow" and a follow-up
+  C edit fills A's number after A is posted.
+- Model names ALWAYS carry the org prefix: nvidia/GLM-5.3-Flash-FP4-Local (the repo has
+  same-model-different-repo cases).
+- C gets an explicit "what this mod does NOT fix" section pointing at A (C rescues only a
+  following real call; the phantom text between openers is still dropped).
+- A gets an explicit distinction section vs B/C (own design + heuristic, experimental, no
+  upstream PR to wait for).
+- B update = retitle + BODY edit (org-prefix fix in body + table with real numbers +
+  separation rationale + cross-links; full final body shown before editing).
+- Post order unchanged: C -> A (carries C's number) -> C small edit (fill A link) -> B update.
+
+## POSTED (2026-11-15 22:47) — issues DONE, PRs NEXT
+- C = eugr/spark-vllm-docker#464 (stray-tool-start; title/model-first, comparison table,
+  "does not fix" section; marker literal in body built via ast from /tmp/task2-src source —
+  never transited chat).
+- A = eugr/spark-vllm-docker#465 (phantom-fallback experimental; table with real #464,
+  differs-from section, experimental status).
+- #464 edited: A row now links #465; "does not fix" section references #465.
+- #463 edited: retitled (model-first) + body edit (nvidia/ prefix in Summary, comparison
+  table with real numbers #464/#465, separation rationale, cross-links) — user approved.
+- #465 edited twice (user review): (a) removed the LOCAL-ONLY recipe reference
+  (recipes/modified/glm-5.3-flash.yaml) and "3-mod recipe" phrasing; (b) added a
+  "## How to apply" section with the 3x --apply-mod command against the OFFICIAL
+  glm-5.3-flash recipe. #464/#463 verified clean of local-recipe references.
+
+## NEW STANDING RULES from issue review (user, 2026-11-15 22:47-23:00) — BINDING
+- Reference ONLY officially git-tracked recipes (e.g. glm-5.3-flash) in issues/PRs/READMEs.
+  NEVER mention recipes/modified/... (local-only ops variant) in any public post.
+- Model names ALWAYS with org prefix (nvidia/GLM-5.3-Flash-FP4-Local) everywhere public.
+- Titles (issues AND PRs): model name FIRST, then the purpose in extreme brevity, then
+  "(glm47 parser; ...)".
+- The companion-mod requirement (phantom-fallback requires the other two) must be stated in
+  the mod READMEs (phantom README has it; stray-tool-start README must ADD a mention of the
+  experimental companion) and in PR bodies.
+
+## Task 3 doc-pass items (fold into the PRs — PR branches carry the public file versions)
+- mods/fix-glm47-phantom-fallback/README.md: drop the local-recipe line ("The recipe lists
+  them ..."), usage = --apply-mod against official glm-5.3-flash (as in #465); Status
+  "Prototype for evaluation" -> adopted-experimental wording.
+- mods/fix-glm47-stray-tool-start/README.md: add mention that fix-glm47-phantom-fallback
+  (experimental, #465) addresses the prose-tail limitation.
+- Root README entries: phantom-fallback "Prototype for evaluation" -> experimental wording;
+  keep companion-requirement note.
+- NEXT: PRs — B/C normal PRs (#462 body pattern: Overview/Claims/Validation/AI-disclosure),
+  A experimental-framed PR. Push mechanics VERIFIED 2026-11-15 22:47: origin = patacchi fork
+  (https) with a NORMAL push URL — the old "no_push" memory is STALE (it described the eugr
+  checkout era). origin/ops-glm53-local is BEHIND local (~15 commits: mods, tests, recipe,
+  README, .mcp.json, memories not yet on the fork). PR branches must be created FRESH from
+  upstream/main + only the PR's files (ops branch carries private memory/mcp commits that
+  must NOT enter PRs). PR titles: model name first, purpose, then (glm47 parser; ...).
