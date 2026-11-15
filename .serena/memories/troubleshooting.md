@@ -374,6 +374,10 @@ the VS Code workspace to the fork, that memory must be read from
   (commit cd42ac2, pushed — PR #462 auto-updated).
 - Issue tables now carry real PR numbers (#466/#467); no "PR to follow"/"link to follow"/
   "Not wired"/local-recipe references remain (verified by grep).
+- #465 EDIT (user, 2026-11-16 00:37): removed the #459 precedent reference (DFlash2 is
+  technically unrelated to the parser-defect class; cross-link web = the 3 mod issues +
+  upstream ONLY). The "experimental reference implementation, not a fix proposal" framing
+  itself stays.
 - Remaining Task 3 (ops-side, local): final recipe + plain startup command documentation;
   AGENT_RUNBOOK mod-status section — pending user answer. Local ops branch untouched by
   all of the above (PR branches are fresh from upstream/main).
