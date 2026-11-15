@@ -10,17 +10,45 @@
   deferred gate per-delta; _build_extracted_result override required because parse()
   bypasses finish_streaming). See entry research.md.
 
-## Open questions (from Explorer, carried into implementation/validation)
+## Open questions RESOLVED (2026-11-15 live + offline validation)
 
-1. StreamingParserEngine.finish() behavior for open TOOL_NAME slots — verify empirically
-   (forced unclosed-opener probe on live; needs user approval for restart/probes).
-2. tool_index sequencing — verify if probes show index anomalies (streaming_parser_engine.py
-   was not in the study set).
-3. TOOL_NAME event.value fidelity (verbatim chunks) — low risk; confirm via probe output.
-4. Serving-layer non-streaming entry (parse() vs extract_tool_calls()) — both covered by design.
-5. Phantom-with-args rendering — chose raw args with space join; revisit if probes look bad.
-6. Heuristic tuning (identifier regex) — false positives possible (single-word prose names);
-   the 65k replay corpus + forced probes are the test bed.
+1. StreamingParserEngine.finish() for open TOOL_NAME slots — RESOLVED empirically: live Probe A
+   (unclosed opener + prose tail, tools present) → prose returned as content, no calls; finish()
+   does NOT synthesize a TOOL_CALL_END for the open slot (otherwise a bogus prose-name call would
+   have appeared even under mod1+mod2 without the rescue). Design robust either way.
+2. tool_index sequencing — no anomalies in live probes; sparse index after phantom accepted
+   (documented). Not a blocker.
+3. TOOL_NAME event.value fidelity — verbatim confirmed (rescued content matches the model's text
+   exactly in all probes).
+4. Serving-layer entry — both covered: streaming (Probes A/B) AND non-streaming (Probe D) verified
+   live; offline tests additionally covered parse() and extract_tool_calls() paths.
+5. Phantom-with-args rendering — RESOLVED by v2: strip ARG_KEY/VALUE structural markers, join as
+   'key value' text (raw markers leaked into content in v1; found in boundary tests).
+6. Heuristic boundary — RESOLVED via offline matrix: CJK/mixed-unicode/emoji/spaced/129-char names
+   → phantom → rescued; 128-char + dotted/dashed → valid → call; single-word prose name still a
+   call (documented blind spot, acceptable per OpenAI name spec). Model self-correction observed
+   in live probes E/F (could not force a raw hallucinated call via prompts — offline covers it).
+
+## Verification log (2026-11-15)
+
+- LIVE (user-restarted 2-node, 3-mod recipe): 3 patches in container; (a) 65k replay unknown names
+  → tool_calls both intact, prompt 65057; (b) known-name streaming OK; (c) no-tools prose OK;
+  Probe A unclosed+tail → content restored (previously swallowed); Probe B phantom+real call in one
+  message → both; Probe D non-streaming unclosed → content restored; engine log clean.
+- MOD ORDER/COMBINATION MATRIX (user-requested): 15/15 apply+ast OK (6 permutations + subsets);
+  behavioral: all m3-containing combos OK in ANY order; m3-less combos lack the feature (expected).
+  Conclusion: 3 mods fully order-independent. v2 patch (marker-stripping rescue) deployed to repo
+  (live container still runs v1 — cosmetic-only difference, restart optional).
+- Test-harness lessons recorded: (i) markers must be built from module constants (visual glyph copy
+  was wrong strings); (ii) find_tool_name needs Pydantic tool objects (plain dicts fail validation);
+  (iii) after in-place edits, verify the edit token exists in EVERY copy used downstream (v2 edit
+  lost twice through interrupted applies / stale source for patch regeneration).
+
+## REMAINING
+
+- ADOPT-vs-DOCUMENT decision (user): live verification passed; recommend ADOPT (keep 3rd mod in
+  recipe). Optional: one more restart to pick up v2 (marker-leak fix in rescued args).
+- Task 3 [ops-convenience]: document final recipe + plain startup command.
 
 ## Implementation status (2026-11-15) — prototype COMPLETE, locally verified
 

@@ -82,6 +82,46 @@ imports, NO _build_extracted_result/_events_to_delta overrides):
   Streaming index gap (phantom consumes an index) — accept, document.
 - Verbatim emission chosen (slot.name = exactly what the model wrote after the opener).
 
+## LIVE VERIFICATION (2026-11-15, user-restarted 2-node with 3-mod recipe) + v2 refinement
+
+LIVE (all PASS): 3 patches in container (mod1 flag=1, mod2 transition=1, mod3 _rescue=4); server
+healthy 800k ctx. (a) 65k replay unknown names → finish=tool_calls both intact, prompt 65057;
+(b) known-name tool streaming → correct call; (c) no-tools prose → content+reasoning finish=stop;
+Probe A unclosed opener + prose tail, no tool requested → content=' here comes the tail prose
+about the weather in autumn', no calls (PREVIOUSLY SWALLOWED); Probe B echo opener + real call →
+content=' trailing note text' + get_weather (both paths in one message); Probe D non-streaming
+same-as-A → content restored, no bogus call; Probes E/F (model asked to call CJK/prose-like
+hallucinated name) → model self-corrected to get_weather (could not force a raw hallucinated call
+via prompts — offline tests cover that path instead). Engine log clean.
+
+V2 REFINEMENT (found in boundary tests): rescue rendered phantom args RAW, exposing the structural
+arg-marker literals in content. v2 strips ARG_KEY/VALUE marker strings in _rescue_phantom_slot →
+'天気取得 city Tokyo'. The v2 edit initially got LOST twice (an interrupted apply; then a patch
+regenerated from the un-edited with_mod3.py copy) — repo patch and /tmp copies diverged; lesson:
+after ANY in-place edit, verify the edit is present in EVERY copy the pipeline will use (grep for
+the new token in each file before regenerating patches). True v2 patch (2 hunks) now in repo;
+clean-apply on base verified (MATCHES_VERIFIED_V2); all 3 mod tests OK. NOTE: live container still
+runs v1 (restart needed to pick up v2 — minor, v1 works, v2 only removes marker leakage in
+rescued args).
+
+## BOUNDARY TESTS (offline, Pydantic ChatCompletionToolsParam) — results
+
+- CJK name ('天気取得'), mixed unicode, emoji, spaced name, 129-char name → phantom → rescued as
+  content (v2: args rendered 'city Tokyo'). 128-char + dotted/dashed names → valid → tool call.
+  B3 single-word prose name ('hello') → still a call (documented blind spot).
+- IMPORTANT test-harness lesson: find_tool_name (validate ON) requires Pydantic tool objects
+  (FunctionTool etc.) — plain dicts make it return False for REAL names too. Offline tests must
+  construct ChatCompletionToolsParam; production always passes Pydantic (unaffected).
+
+## MOD ORDER/COMBINATION MATRIX (user-requested) — FINAL: 15/15 apply OK, order-independent
+
+All 6 permutations of {m1,m2,m3} + subsets {m1,m3},{m2,m3},{m1,m2},{m1},{m2},{m3} in all orders:
+patch apply + ast.parse OK for ALL 15 combos. Behavioral (Pydantic tools): every m3-containing
+combo (9 combos, ANY order) → unclosed-content rescue + CJK rescue + valid-call all OK;
+m3-less combos → unclosed-content False (feature absent — expected), valid-call always OK.
+Rationale: disjoint regions + m1 context-free. Documented in mod README; rule for future mods:
+keep disjoint regions or pin recipe order deliberately.
+
 ## Offline behavioral verification (container, python3, module loaded from patched file copy)
 
 17/17 PASS (offline_parser_test.py, markers built from module constants — raw glyphs must never
