@@ -350,3 +350,30 @@ the VS Code workspace to the fork, that memory must be read from
   README, .mcp.json, memories not yet on the fork). PR branches must be created FRESH from
   upstream/main + only the PR's files (ops branch carries private memory/mcp commits that
   must NOT enter PRs). PR titles: model name first, purpose, then (glm47 parser; ...).
+- RECIPE POLICY DECIDED (user, 2026-11-15 23:20): option (a) — C's PR wires the OFFICIAL
+  glm-5.3-flash recipe (same as #462); issues/READMEs document BOTH forms (--apply-mod
+  primary + "wired into recipe, plain command applies it after merging"). A stays unwired
+  (experimental). Upstream house style confirmed: many recipes pre-wire mods. #462 merge
+  order: both PRs touch the recipe's mods: list -> C's PR body notes rebase-after-#462.
+- APPLIED: #464 gained the recipe-wiring bullet; #465 gained "Alternatively, add the three
+  mods to a recipe's mods: list"; C README Usage rewritten (--apply-mod + wiring note,
+  Coexists line references #462/this PR); A README gained the recipe-addition line.
+- PR BRANCHES READY (local, not pushed): fix-glm47-stray-tool-start @ /tmp/pr-c (6 files,
+  220+, amended) and fix-glm47-phantom-fallback @ /tmp/pr-a (5 files, 321+, amended); tests
+  pass in worktrees (mod tests OK, test_recipes.sh 68/68 both). Push to origin (https,
+  normal push URL) then gh pr create --repo eugr/spark-vllm-docker --head patacchi:<branch>
+  --base main — AFTER user approves title+body.
+
+## ALL POSTED (2026-11-15 23:59) — issues + PRs COMPLETE
+- PRs: #466 = stray-tool-start (6 files, 222+; recipe wiring), #467 = phantom-fallback
+  experimental (6 files, 333+; recipe wiring added per final user decision — A is wired
+  like B/C, opt-out = remove from recipe mods:[]). Both branches pushed to origin.
+- UNIFIED apply wording EVERYWHERE (issues #463/#464/#465 + all three mod READMEs):
+  "recipe applies automatically after merge; opt out = remove line from recipe's mods:
+  list; on-demand = --apply-mod CLI". #462's branch also got the unified README Usage
+  (commit cd42ac2, pushed — PR #462 auto-updated).
+- Issue tables now carry real PR numbers (#466/#467); no "PR to follow"/"link to follow"/
+  "Not wired"/local-recipe references remain (verified by grep).
+- Remaining Task 3 (ops-side, local): final recipe + plain startup command documentation;
+  AGENT_RUNBOOK mod-status section — pending user answer. Local ops branch untouched by
+  all of the above (PR branches are fresh from upstream/main).
