@@ -159,3 +159,25 @@ the VS Code workspace to the fork, that memory must be read from
   (--context=ide) should run for this workspace. Currently 2 old instances run on the host
   (context=vscode, project=eugr) from the old setup — harmless for the new workspace but
   candidates for cleanup per the skill's reconciliation ladder if they misbehave.
+
+## Task 1 status (2026-11-15): mods/fix-glm47-stray-tool-start implemented, live restart pending
+
+- Mod created in the fork (ops-glm53-local), mirroring fix-glm47-unknown-tool-name (strict
+  run.sh pattern: VLLM_PACKAGE_ROOT ladder, grep-post-token idempotency, patch -p1 -d
+  "$VLLM_PACKAGE_ROOT"). Patch header is a/parser/glm47_moe.py — the earlier memory draft
+  (a/vllm/...) was wrong for the run.sh invocation shape; regenerated the patch from the
+  live container file with diff -U4, so hunk @@ -187,8 +187,12 @@ and context indentation
+  (12/16) are exact. Verified on a container-file copy: clean apply, 4-line insertion only,
+  ast.parse OK.
+- Wired into recipes/modified/glm-5.3-flash.yaml (2nd mods entry); root README mod list
+  entry added; tests/test_fix_glm47_stray_tool_start_mod.sh (apply/ast/idempotency/negative
+  drift fail-closed) OK; template mod test OK; test_recipes.sh 68/68.
+- Recipe resolution fact: bare `./run-recipe.sh glm-5.3-flash` = STANDARD recipe (500k ctx,
+  unknown-tool-name mod only); ops variant = explicit path
+  `./run-recipe.sh recipes/modified/glm-5.3-flash.yaml` (800k ctx, DEV_MODE, both mods).
+- Patch regeneration was needed because the previous session's memory transcription of the
+  hunk context had inconsistent indentation/counts — trust the live file, not transcriptions.
+- Pending: user approval for live 2-node restart + regression before Task 1 closes.
+- Serena `core` map retrofitted with Rule 3 headers (full-replacement after apply_core_delta
+  refused header-only vs headerless map); full restructure (sections, recipes/backup
+  staleness, .github/.mcp.json/.serena coverage) is Task 2's Explorer's job.

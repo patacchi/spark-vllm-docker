@@ -1,3 +1,8 @@
+generated_at: 2026-11-15T15:19:54+0900
+source commit: 9c5b26e
+coverage: Repo entry points, directory layout, agent routing invariants (vLLM-on-DGX-Spark orchestration repo)
+thoroughness: Spot-check fit validation via one read-only Explorer delegation (root entry points, recipes/, mods/, docker/, tests/, docs/)
+
 # Core
 
 Bash + Python orchestration for running vLLM on one or more NVIDIA DGX Spark systems (single node to multi-node Ray/PyTorch-distributed clusters, NCCL/InfiniBand-RDMA). Development host is Linux; targets are DGX Spark (integrated NVIDIA GPU, shared CPU/GPU UMA memory).
