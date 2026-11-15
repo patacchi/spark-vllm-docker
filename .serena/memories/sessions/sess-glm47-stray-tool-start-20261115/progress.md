@@ -1,6 +1,6 @@
 # Progress — sess-glm47-stray-tool-start-20261115
 
-## Task 1 [mod-recovery-transition] — implemented + locally verified; live restart pending user approval
+## Task 1 [mod-recovery-transition] — COMPLETE (implemented, locally verified, LIVE VERIFIED)
 - Delegation: Explorer c3aa2abc (map-fit + groundwork) — gates OK, no shell used, no genuine
   Serena failures. Scratch merged into entry research.md and deleted; its core-delta.md was
   superseded by the caller's full-replacement retrofit (apply_core_delta refused with
@@ -20,8 +20,17 @@
 - Body commit: "Add fix-glm47-stray-tool-start mod" (see git log for hash).
 - map_visible: YES (new mod dir + test + recipe/README changes) — Task 2's Explorer authors
   the full-replacement core delta (restructure + these additions) after the body commit.
-- PENDING: user approval for live 2-node restart + regression (65k replay with unknown-name
-  tools, known-name tools, no-tools prose) before Task 1 closes operationally.
+- LIVE VERIFIED 2026-11-15: user restarted the 2-node cluster manually (launcher skips launch
+  while containers are RUNNING; stopped containers are recreated fine). Both patches confirmed
+  in container (recovery-transition grep=1, validate_tool_names=False=1); server healthy, 800k ctx.
+  Regression: (a) 65k replay + unknown names → finish=tool_calls, both hallucinated calls
+  intact, prompt_tokens 65057; (b) known-name tool → correct tool_calls; (c) no-tools → prose
+  + reasoning, finish=stop; (d) forced stray-opener probe (opener built via chr(), never raw
+  in chat): model emitted opener after a prose note → content ends at the emission point,
+  phantom name created, then the REAL call still parsed (finish=tool_calls, no junk phantom
+  call in output) — the fix path vs pre-fix truncation; streaming variant OK; engine log clean.
+  Documented limitation (in mod README, upstream #60703): prose tail with no subsequent tool
+  call is still swallowed.
 
 ## Open items
 - Task 2 [mod-phantom-fallback-eval]: prototype phantom-name → content fallback as

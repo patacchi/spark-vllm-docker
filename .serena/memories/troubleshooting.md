@@ -177,7 +177,23 @@ the VS Code workspace to the fork, that memory must be read from
   `./run-recipe.sh recipes/modified/glm-5.3-flash.yaml` (800k ctx, DEV_MODE, both mods).
 - Patch regeneration was needed because the previous session's memory transcription of the
   hunk context had inconsistent indentation/counts — trust the live file, not transcriptions.
-- Pending: user approval for live 2-node restart + regression before Task 1 closes.
+- LIVE VERIFIED 2026-11-15 (user performed the 2-node restart manually: stop both
+  vllm_node containers, then ./run-recipe.sh recipes/modified/glm-5.3-flash.yaml; launcher
+  refuses to start while containers are RUNNING — stopped-but-existing containers are fine,
+  it recreates them):
+  * both patches confirmed in container (recovery transition grep=1, validate_tool_names=False=1);
+    server healthy, 800k ctx.
+  * (a) 65k replay + unknown names → finish=tool_calls, both hallucinated calls intact,
+    prompt_tokens 65057 (identical to pre-verification).
+  * (b) known-name tool → correct tool_calls; (c) no-tools → prose + reasoning, finish=stop.
+  * (d) forced stray-opener probe (user msg + reply both carry the raw opener ASCII string,
+    built via chr() so it never transits chat): model emitted opener after a prose note →
+    content ends exactly at the emission point (opener consumed as parser structure), phantom
+    name created, then the REAL call still parsed (finish=tool_calls, get_weather) — the fix
+    path vs pre-fix truncation; no junk phantom call in output; streaming variant also OK.
+  * engine log: no parser errors/warnings.
+  * KNOWN LIMITATION (documented in mod README, upstream #60703): prose tail with no
+    subsequent tool call is still swallowed (recovery only rescues a following real call).
 - Serena `core` map retrofitted with Rule 3 headers (full-replacement after apply_core_delta
   refused header-only vs headerless map); full restructure (sections, recipes/backup
   staleness, .github/.mcp.json/.serena coverage) is Task 2's Explorer's job.
