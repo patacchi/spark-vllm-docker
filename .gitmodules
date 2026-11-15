@@ -1,0 +1,6 @@
+[submodule ".github/agents"]
+	path = .github/agents
+	url = git@github.com:patacchi/commonAgent-vscode.git
+[submodule ".github/skills"]
+	path = .github/skills
+	url = git@github.com:patacchi/commonSkills-vscode.git
