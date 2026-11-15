@@ -1,9 +1,21 @@
 # Session anchor (Agent mode)
 
-- session_key: sess-glm47-phantom-fallback-20261115 (Task 2 COMPLETE: prototype live-verified + order matrix 15/15 + v2 marker-strip refinement, commit f7d284d; adopt decision recommended)
+- session_key: sess-glm47-phantom-fallback-20261115 (Task 2 ADOPTED + live-verified; Task 3 IN PROGRESS: issue/PR drafts next)
 - map_visible: YES (mod + test + recipe + README changes, commits 505d45c/f7d284d)
-- workspace: fork /home/punipower/gitrepos/patacchi/spark-vllm-docker, branch ops-glm53-local (7 commits ahead of origin, push disabled)
+- workspace: fork /home/punipower/gitrepos/patacchi/spark-vllm-docker, branch ops-glm53-local
+  (16 commits ahead of origin, push disabled; latest a043368)
 - Previous session: sess-glm47-stray-tool-start-20261115 — CLOSED (Task 1: mods/fix-glm47-stray-tool-start, live-verified, commits 5f8aa0f..27131c6). Plan + full debug history: read `mem:troubleshooting`.
+
+## CURRENT POSITION (compact-safe checkpoint, 2026-11-15)
+
+Task 2 DONE: mods/fix-glm47-phantom-fallback adopted (live v1+v2 PASS, order matrix 15/15,
+boundary tests done, offline 17/17). Task 3 NEXT STEP: draft the two NEW issues (A:
+phantom-fallback experimental; C: stray-tool-start) for eugr/spark-vllm-docker, show the user
+the FULL text of each before posting (standing approval rule), then update #463 (B) with the
+separation rationale + cross-links, then PRs. Conventions + push mechanics: entry research.md
+(no experimental label exists; #459 = precedent; PR body pattern = our #462; origin push =
+no_push → PR branch push needs a fork remote decision by the user). Full strategy + draft
+content guidance: mem:troubleshooting "DECIDED: upstream/PR strategy" + "MOD CLASSIFICATION".
 
 ## Task 2 [mod-phantom-fallback-eval] — from mem:troubleshooting "Current plan"
 
