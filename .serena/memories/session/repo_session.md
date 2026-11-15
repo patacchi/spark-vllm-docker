@@ -6,20 +6,19 @@
   (16 commits ahead of origin, push disabled; latest a043368)
 - Previous session: sess-glm47-stray-tool-start-20261115 — CLOSED (Task 1: mods/fix-glm47-stray-tool-start, live-verified, commits 5f8aa0f..27131c6). Plan + full debug history: read `mem:troubleshooting`.
 
-## CURRENT POSITION (compact-safe checkpoint, 2026-11-15 23:00)
+## CURRENT POSITION (compact-safe checkpoint, 2026-11-15 24:00)
 
-Issues POSTED: #464 (C stray-tool-start), #465 (A phantom-fallback experimental, incl.
-"How to apply" section), #463 retitled + body edit (comparison table, rationale, nvidia/).
-Standing rules added by user (BINDING): reference ONLY officially git-tracked recipes —
-NEVER recipes/modified/... (local-only) in public posts; model names with org prefix
-(nvidia/GLM-5.3-Flash-FP4-Local); titles = model first, purpose, (glm47 parser; ...);
-companion-mod requirement stated in READMEs + PR bodies.
-PRs NEXT: one dedicated branch per PR, fresh from upstream/main, PR files only (no
-.serena/.mcp.json/recipes-modified); C PR wires the official recipes/glm-5.3-flash.yaml,
-A PR has no recipe wiring (experimental). origin = patacchi fork with a NORMAL push URL
-(old no_push memory is STALE). PR body pattern: #462 (Overview/Claims/Validation/disclosure).
-Doc pass folds into the PRs (README fixes: local-recipe refs, Status wording, companion
-mentions). Details: mem:troubleshooting "POSTED" + "NEW STANDING RULES" + "Task 3 doc-pass".
+ALL POSTED: #463 retitled+body (comparison table, unified apply wording), #464 (C issue),
+#465 (A issue, experimental + How to apply), PR #466 (C, recipe wiring), PR #467 (A
+experimental, recipe wiring per final user decision). #462 branch got unified README Usage
+(cd42ac2). Unified apply wording everywhere: recipe auto-applies after merge / opt-out =
+remove from recipe mods:[] / on-demand = --apply-mod CLI. Tables carry real PR numbers;
+no stale references (grep-verified). Memory committed d7b0d8b; tree clean.
+REMAINING Task 3 (ops-side, local ops branch): final recipe + plain startup command
+documentation; AGENT_RUNBOOK mod-status section — pending user answer.
+Standing rules (BINDING): official recipes only in public posts (never recipes/modified/);
+nvidia/ prefix on model names; titles = model first, purpose, (glm47 parser; ...);
+companion requirement stated in READMEs + PR bodies.
 
 ## Task 2 [mod-phantom-fallback-eval] — from mem:troubleshooting "Current plan"
 
