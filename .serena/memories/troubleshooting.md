@@ -68,6 +68,48 @@ too: 154843-154846 special=False, verified via AutoTokenizer):
    User hit this several times. Fix PR #67480 (opt-in validate_required_args
    schema gate, OPEN). Workaround per issue: tool_choice="none" or omit tools.
 
+## DECIDED: upstream/PR strategy for the 3 mods (user, 2026-11-15) — BINDING
+
+- vLLM upstream: NO new issues/PRs from us (movement already exists on all three).
+- Pattern C equivalent-code proposal to upstream: ON HOLD (user decision later).
+- spark-vllm-docker: issue + PR for ALL THREE mods, as SEPARATE issues (mod removal timing
+  differs per upstream trajectory — that separation rationale must be stated in each issue).
+- All 3 issues/PRs: state the GLM-5.3-model defect origin explicitly and CROSS-LINK each other
+  (each references the other two + the upstream issues).
+- Pattern B (unknown-tool-name) + C (stray-tool-start): normal PRs (upstream direction known).
+- Pattern A (phantom-fallback): EXPERIMENTAL-feature track — RESEARCH spark-vllm-docker's
+  experimental convention first (mods/exp-* dirs exist: exp-b12x, exp-w4a16; also check
+  issue/PR title/label conventions) before drafting; then decide its PR form.
+- Order: (1) research experimental conventions → (2) draft 3 issues (cross-linked) →
+  (3) SHOW USER the full text of each post and get explicit approval BEFORE posting
+  (standing rule) → (4) PRs after issues, linked.
+- Task 3 docs scope: final recipe + plain startup command + this classification (A/B/C)
+  in README mod list (+ docs/AGENT_RUNBOOK.md if user wants — pending user answer).
+- Working-state facts: repo=fork patacchi/spark-vllm-docker branch ops-glm53-local
+  (13+ commits ahead of origin, push disabled — PR branches must be pushed via gh from a
+  branch; remember push is disabled on origin: push URL = no_push → gh pr create needs the
+  fork's GitHub remote or a temporary push target decision by the user).
+
+## MOD CLASSIFICATION (2026-11-15, for Task 3 docs) — 3 patterns
+
+Pattern A (independent/own implementation, NOT upstream-pending):
+- fix-glm47-phantom-fallback: phantom-prose -> content rescue. NO upstream counterpart
+  (#60703 discussion mentions the need, but no PR exists; our design + heuristic is own work).
+  Prototype → adopt decision pending final user confirmation.
+
+Pattern B (pre-empts upstream, applies to current release as-is):
+- fix-glm47-unknown-tool-name: flips validate_tool_names=True→False. Equivalent to the
+  eventual upstream direction for vllm#67684 (kimi_k2/inkling already ship False; minimax_m2
+  still True upstream) — trivially applicable to any release carrying glm47_moe.py
+  (context-free 1-line hunk). PR eugr/spark-vllm-docker#462 carries it upstream-of-us.
+
+Pattern C (pre-empts upstream, does NOT apply to the dev build as-is):
+- fix-glm47-stray-tool-start: implements vllm#60842/#60813's (TOOL_NAME,"TOOL_START")
+  recovery transition, but as a context-exact 4-line insertion for OUR build (upstream
+  diff context drifted: our build splices arg_tag_transitions separately; upstream folded
+  ARG_KEY_START into the main dict). Upstream PRs are stale/blocked since Oct 12.
+  Applies ONLY to builds matching our layout (pinned via test fixture; fails closed on drift).
+
 --apply-vllm-pr mechanics (launch-cluster.sh): fetches PR diff, validates
 runtime-only (vllm/ paths only; tests/ ignored), bundles as generated mod, at
 container start runs `git apply --binary --include='vllm/**'` against installed
@@ -159,6 +201,29 @@ the VS Code workspace to the fork, that memory must be read from
   (--context=ide) should run for this workspace. Currently 2 old instances run on the host
   (context=vscode, project=eugr) from the old setup — harmless for the new workspace but
   candidates for cleanup per the skill's reconciliation ladder if they misbehave.
+
+## clear_thinking verified (2026-11-15; user tested false, then reverted to true)
+
+- Template-verified: clear_thinking only affects PAST-turn reasoning blocks in the prompt history
+  (true = strip from prompt; false = keep as think blocks, model can re-read its past thinking).
+  CURRENT-turn reasoning/content separation is identical either way. Single-turn outputs differ
+  only by generation variance.
+- pcap-verified (user ran sudo tcpdump, /tmp/ct-check.pcap): the client request DID carry
+  chat_template_kwargs {"clear_thinking": false} — but the request body (~2.2MB, 646 assistant
+  messages) contains ZERO "reasoning_content" fields: the client (vllm-copilot) strips past
+  reasoning from history when sending. So clear_thinking=false is a NO-OP for THIS client;
+  restoring past thinking to the prompt would require the client to send reasoning_content in
+  history. Request also carries repetition_detection (max_pattern_size 64, min_pattern_size 8,
+  min_count 3) and reasoning_effort "max". User reverted to true.
+- EDGE CASE OBSERVED (no-tools request): with NO tools passed and the stray-opener prompt, the
+  model hallucinated tool calls and mod1 delivered them: streaming emitted EMPTY-name calls
+  ({"name":"","args":""}) — the unknown-name call's name is empty (name deltas absent), finish=
+  tool_calls. With clear_thinking=false the model emitted 4 empty-name calls + 1 "BANANA" call
+  (prose rescued as a NAME because it matched the identifier regex!). "BANANA" is a valid
+  identifier string → not a phantom → bogus call. This is the documented single-word blind spot
+  (progress item 6) observed LIVE. v2 renders rescued args, but empty-name calls streaming as
+  name-less deltas are a cosmetic client-side artifact (client should ignore empty names).
+  No server errors; log clean.
 
 ## Task 2 status (2026-11-15): mods/fix-glm47-phantom-fallback prototype implemented, live validation pending
 

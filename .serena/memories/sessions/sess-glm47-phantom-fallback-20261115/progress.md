@@ -60,11 +60,23 @@
   live v2-vs-v1 difference is cosmetic-only (marker leakage in rescued args). Lesson: do not rely
   on model-echo prompts for exact marker-structure paths — use offline module tests.
 
-## REMAINING
+## REMAINING — Task 3 execution plan (user-approved flow, 2026-11-15)
 
-- ADOPT decision: recommend ADOPT (user said "タスク 3 は何をするタスクだったか" — decision pending
-  their confirmation; live verification passed).
-- Task 3 [ops-convenience]: document final recipe + plain startup command.
+BINDING decisions (also recorded in mem:troubleshooting "DECIDED: upstream/PR strategy"):
+- vLLM upstream: no new issues/PRs. Pattern-C equivalent-code proposal: ON HOLD.
+- spark-vllm-docker: 3 SEPARATE issues + PRs (one per mod), all stating the GLM-5.3 defect
+  origin and cross-linking each other + upstream issues; separation rationale = different
+  upstream mod-removal timings.
+- B/C: normal PRs. A: experimental-feature track — FIRST research repo conventions
+  (mods/exp-b12x, mods/exp-w4a16, issue/PR title/label conventions).
+- Sequence: research conventions → draft 3 issues → USER APPROVAL of full text per post →
+  post → PRs linked to issues.
+- Task 3 docs also covers: final recipe + plain startup command + A/B/C classification note.
+
+## Task 2 final status: ADOPTED (user confirmed "採用" flow by proceeding; live v1+v2 PASS,
+order matrix 15/15, boundary tests done, offline 17/17). Remaining polish: mod README "Status"
+section says "Prototype for evaluation" — update to adopted wording in Task 3's doc pass
+(also the root README entry says "Prototype for evaluation" — same fix).
 
 ## Implementation status (2026-11-15) — prototype COMPLETE, locally verified
 
