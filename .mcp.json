@@ -1,0 +1,42 @@
+{
+  "mcpServers": {
+    "git-ro": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "run", "--no-project", "--with", "mcp<2", "python",
+        ".github/agents/mcp/git_readonly/server.py"
+      ]
+    },
+    "session-close": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "run", "--no-project", "--with", "mcp<2", "python",
+        ".github/agents/mcp/session_close/server.py"
+      ]
+    },
+    "harness-info": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "run", "--no-project", "--with", "mcp<2", "python",
+        ".github/agents/mcp/harness_info/server.py"
+      ]
+    },
+    "context-usage": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        ".github/agents/mcp/context_usage/server.js"
+      ]
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        ".github/agents/mcp/context7/server.js"
+      ]
+    }
+  }
+}
