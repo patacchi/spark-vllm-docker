@@ -2411,6 +2411,10 @@ The repository includes several pre-configured mods in the `mods/` directory:
   transition to the glm47 tool-call parser so a stray tool-call opener inside prose closes
   the phantom call and a following real tool call still parses, instead of truncating the
   rest of the message (upstream vllm#60703).
+- **fix-glm47-phantom-fallback/**: Rescues the prose the glm47 tool-call parser swallows
+  when the model writes a stray tool-call opener and never closes it: the prose is returned
+  as regular message content instead of being dropped (streaming) or turned into a bogus
+  tool call (non-streaming). Prototype for evaluation.
 - **fix-glm47-unknown-tool-name/**: Stops the glm47 tool-call parser from silently dropping
   tool calls whose function name is not in the request's `tools` list; such calls are now
   returned to the client, which prevents empty `finish_reason="stop"` responses and the

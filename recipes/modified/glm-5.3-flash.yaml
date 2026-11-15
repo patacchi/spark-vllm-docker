@@ -16,6 +16,7 @@ cluster_only: true
 mods:
   - mods/fix-glm47-unknown-tool-name
   - mods/fix-glm47-stray-tool-start
+  - mods/fix-glm47-phantom-fallback
 
 defaults:
   port: 8000
