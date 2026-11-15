@@ -44,10 +44,26 @@
   (iii) after in-place edits, verify the edit token exists in EVERY copy used downstream (v2 edit
   lost twice through interrupted applies / stale source for patch regeneration).
 
+## V2 LIVE VERIFICATION (2026-11-15, second user restart) — ALL PASS
+
+- Container confirms v2: rescue body strips ARG_KEY_START/END + ARG_VALUE_START/END (grep 6 refs);
+  3 patches present; health 200; 800k ctx.
+- Task 1 regressions: (a) 65k replay unknown names → finish=tool_calls both intact, prompt 65057;
+  (b) known-name streaming → correct call; (c) no-tools prose → finish=stop.
+- mod3 core (v2 live): Probe A unclosed opener + prose tail (streaming) → content restored, no
+  calls; Probe B echo opener + real call → content restored + get_weather parsed; Probe D
+  non-streaming unclosed → content restored. Engine log clean.
+- Probe G2 (forcing the model to echo a CJK hallucinated call with real arg markers) — INCONCLUSIVE
+  for v2-vs-v1 discrimination: the model did not reproduce the exact marker structure reliably
+  (re-quoted a simplified form; second attempts partially consumed as structure and rescued).
+  Deterministic v2 verification remains the OFFLINE boundary tests (17/17 + B1-B8 matrix);
+  live v2-vs-v1 difference is cosmetic-only (marker leakage in rescued args). Lesson: do not rely
+  on model-echo prompts for exact marker-structure paths — use offline module tests.
+
 ## REMAINING
 
-- ADOPT-vs-DOCUMENT decision (user): live verification passed; recommend ADOPT (keep 3rd mod in
-  recipe). Optional: one more restart to pick up v2 (marker-leak fix in rescued args).
+- ADOPT decision: recommend ADOPT (user said "タスク 3 は何をするタスクだったか" — decision pending
+  their confirmation; live verification passed).
 - Task 3 [ops-convenience]: document final recipe + plain startup command.
 
 ## Implementation status (2026-11-15) — prototype COMPLETE, locally verified
