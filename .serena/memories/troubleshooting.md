@@ -138,3 +138,24 @@ branch ops-glm53-local (operational). Prepared and pushed:
 Plan memory lives in .serena/memories/troubleshooting.md of the EUGR repo — after switching
 the VS Code workspace to the fork, that memory must be read from
 /home/punipower/gitrepos/eugr/spark-vllm-docker/.serena/memories/troubleshooting.md (or copied).
+
+## Workspace .mcp.json + Serena config committed to fork (2026-11-15)
+
+- e188dd0 on ops-glm53-local: .mcp.json (5 servers, relative paths per submodule README
+  conventions: git-ro, session-close, harness-info via uv+mcp<2 python; context-usage,
+  context7 via node), .serena/project.yml + project.local.yml (copied from eugr), all
+  migration memories. Smoke-tested: uv+mcp import OK, node OK.
+- After switching the VS Code workspace to the fork: start each server once in the MCP
+  view (first-run trust), then Reload Window. context7 needs CONTEXT7_API_KEY in the
+  user environment (set on this host already? verify with check-api-key).
+
+- b129074: serena-mcp registered in fork's workspace .mcp.json per serena-mcp-setup skill
+  canonical form: key "serena-mcp", --context=ide, --enable-web-dashboard=false, timeout
+  60000. NOTE the eugr checkout used .vscode/mcp.json with --context=vscode --project
+  ${workspaceFolder} (non-canonical scope) — that old registration stays only in the eugr
+  checkout, do not replicate. restart_language_server is already enabled globally in
+  ~/.serena/serena_config.yml (included_optional_tools). After switching workspace: start
+  serena-mcp once in MCP view + Reload Window; audit says exactly 1 serena instance
+  (--context=ide) should run for this workspace. Currently 2 old instances run on the host
+  (context=vscode, project=eugr) from the old setup — harmless for the new workspace but
+  candidates for cleanup per the skill's reconciliation ladder if they misbehave.
