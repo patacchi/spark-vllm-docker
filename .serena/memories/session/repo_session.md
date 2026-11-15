@@ -1,6 +1,6 @@
 # Session anchor (Agent mode)
 
-- session_key: sess-glm47-stray-tool-start-20261115 (Task 1 implemented, live restart pending approval)
+- session_key: sess-glm47-stray-tool-start-20261115 (Task 1 COMPLETE incl. live verification)
 - map_visible: YES (Task 1 added mods/fix-glm47-stray-tool-start, tests/test_fix_glm47_stray_tool_start_mod.sh, recipe/README changes — body committed; Task 2's Explorer authors the core delta)
 - workspace: fork /home/punipower/gitrepos/patacchi/spark-vllm-docker, branch ops-glm53-local
   (ff of fix-glm47-unknown-tool-name; includes PR eugr/spark-vllm-docker#462 commits)
