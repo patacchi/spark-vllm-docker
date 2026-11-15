@@ -387,6 +387,13 @@ the VS Code workspace to the fork, that memory must be read from
   IMPLICATION: Pattern B's mod (#462) removal timing is approaching (upstream PR may land);
   keep mod-removal-timing wording as-is (already conditional). If their PR changes
   validate_tool_names handling, C/A context-exact hunks may need re-checks.
+- EMAIL PRIVACY FIX (2026-11-16 01:25): Samuel Hartmann / GPUwerk (DGX Spark rental
+  vendor, legitimate DKIM/SPF, sent via mailforbots.com outreach service) cold-emailed
+  patacchi@patamon.jp — address harvested from COMMIT author metadata (public on GitHub
+  API despite the profile email being private; PR #462 + all our commits carry it).
+  Fix applied: git global user.email -> 78113802+patacchi@users.noreply.github.com
+  (verified on a fresh commit). Old commits keep the real address (rewrite declined /
+  not needed). Vendor reply: user's call — no draft requested yet.
 - TASK 3 CLOSED (user, 2026-11-16 00:45): issues + PRs = the delivered scope; RUNBOOK
   mod-status section = NO (user decision); ops-side "final recipe + plain startup command"
   docs = DROPPED from this session (user chose complete_session). Ops branch untouched by
