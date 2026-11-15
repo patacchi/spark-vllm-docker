@@ -378,6 +378,15 @@ the VS Code workspace to the fork, that memory must be read from
   technically unrelated to the parser-defect class; cross-link web = the 3 mod issues +
   upstream ONLY). The "experimental reference implementation, not a fix proposal" framing
   itself stays.
+- UPSTREAM #67684 MOVEMENT (2026-11-14/15, seen 00:50 11-16): contributor Schrodingerscat07
+  volunteered (Nov 14), user (patacchi) replied Nov 14 with the verified root-cause/repro/fix
+  summary (mentions #462 + our live 2-node deployment, offers to test patches), contributor
+  reproduced on main Nov 15 and is checking interaction with open parser-engine PRs
+  vllm-project/vllm#63582 (contiguous indices on rejected calls — relevant to our phantom
+  sparse-index note) and #67480 (reject calls omitting schema-required args) before a PR.
+  IMPLICATION: Pattern B's mod (#462) removal timing is approaching (upstream PR may land);
+  keep mod-removal-timing wording as-is (already conditional). If their PR changes
+  validate_tool_names handling, C/A context-exact hunks may need re-checks.
 - TASK 3 CLOSED (user, 2026-11-16 00:45): issues + PRs = the delivered scope; RUNBOOK
   mod-status section = NO (user decision); ops-side "final recipe + plain startup command"
   docs = DROPPED from this session (user chose complete_session). Ops branch untouched by
