@@ -1,5 +1,5 @@
-generated_at: 2026-11-15T16:25:00+0900
-source commit: 5f8aa0f
+generated_at: 2026-11-16T00:47:00+0900
+source commit: ba7210b
 coverage: Repo entry points, directory layout incl. .github/ submodules, workspace .mcp.json, .serena/ config, agent routing invariants (vLLM-on-DGX-Spark orchestration repo)
 thoroughness: Full-replacement restructure via one read-only Explorer delegation (root entry points, recipes/, mods/, docker/, docs/, tests/, wheels/, .github/, .mcp.json, .serena/)
 
