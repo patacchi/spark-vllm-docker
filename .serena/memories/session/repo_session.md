@@ -1,7 +1,7 @@
 # Session anchor (Agent mode)
 
-- session_key: sess-glm47-phantom-fallback-20261115 (Task 2 ACTIVE: phantom-name → content fallback prototype eval)
-- map_visible: no (until/unless the prototype adds mod files)
+- session_key: sess-glm47-phantom-fallback-20261115 (Task 2 prototype implemented + offline-verified 17/17; live validation pending approval)
+- map_visible: YES (Task 2 added mods/fix-glm47-phantom-fallback + test + recipe/README changes, commit 505d45c)
 - workspace: fork /home/punipower/gitrepos/patacchi/spark-vllm-docker, branch ops-glm53-local (7 commits ahead of origin, push disabled)
 - Previous session: sess-glm47-stray-tool-start-20261115 — CLOSED (Task 1: mods/fix-glm47-stray-tool-start, live-verified, commits 5f8aa0f..27131c6). Plan + full debug history: read `mem:troubleshooting`.
 

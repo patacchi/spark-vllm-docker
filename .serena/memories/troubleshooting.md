@@ -160,6 +160,25 @@ the VS Code workspace to the fork, that memory must be read from
   (context=vscode, project=eugr) from the old setup — harmless for the new workspace but
   candidates for cleanup per the skill's reconciliation ladder if they misbehave.
 
+## Task 2 status (2026-11-15): mods/fix-glm47-phantom-fallback prototype implemented, live validation pending
+
+- Prototype COMPLETE + offline-verified 17/17 in-container (module loaded from patched copy; no
+  server restart). Rescues prose swallowed after a stray unclosed opener: phantom name (regex
+  ^[A-Za-z0-9_.-]{1,128}$ heuristic) moved into deferred-content channel → emitted as content.
+  Covers streaming (closed via mod2 recovery + unclosed via finish_streaming sweep) AND parse()
+  (single-pass sweep+flush — needed because parse() bypasses finish_streaming and ignores
+  tool_call_info.content). Engine (parser_engine.py) unchanged; Glm47MoeParser overrides only.
+- Explorer's original draft was revised: _build_extracted_result override CANNOT cover parse()
+  (_single_pass_parse calls it with no deltas and returns delta.content). Also: pre-call prose in
+  thinking mode arrives as REASONING_CHUNK (initial state REASONING) — test expectations must
+  account for it.
+- Marker lesson: test fixtures must build marker strings from module constants (mod.TOOL_CALL_START
+  etc.) — visually-copied glyphs were NOT the real ASCII strings and silently mis-parsed.
+- Mod order: 3 glm47 mods are order-independent (disjoint regions; mod1 context-free); documented
+  in mod README. Future mods: disjoint regions or pin recipe order deliberately (user question).
+- Files/commits: mod dir + test + recipe 3rd entry + root README entry, commit 505d45c; session
+  docs 509ec38. PENDING: live 2-node restart + regression (user approval), then ADOPT-vs-DOCUMENT.
+
 ## Task 1 status (2026-11-15): mods/fix-glm47-stray-tool-start implemented, live restart pending
 
 - Mod created in the fork (ops-glm53-local), mirroring fix-glm47-unknown-tool-name (strict
