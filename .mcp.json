@@ -4,7 +4,11 @@
       "type": "stdio",
       "command": "uv",
       "args": [
-        "run", "--no-project", "--with", "mcp<2", "python",
+        "run",
+        "--no-project",
+        "--with",
+        "mcp<2",
+        "python",
         ".github/agents/mcp/git_readonly/server.py"
       ]
     },
@@ -12,7 +16,11 @@
       "type": "stdio",
       "command": "uv",
       "args": [
-        "run", "--no-project", "--with", "mcp<2", "python",
+        "run",
+        "--no-project",
+        "--with",
+        "mcp<2",
+        "python",
         ".github/agents/mcp/session_close/server.py"
       ]
     },
@@ -20,7 +28,11 @@
       "type": "stdio",
       "command": "uv",
       "args": [
-        "run", "--no-project", "--with", "mcp<2", "python",
+        "run",
+        "--no-project",
+        "--with",
+        "mcp<2",
+        "python",
         ".github/agents/mcp/harness_info/server.py"
       ]
     },
@@ -37,6 +49,16 @@
       "args": [
         ".github/agents/mcp/context7/server.js"
       ]
+    },
+    "serena-mcp": {
+      "type": "stdio",
+      "command": "serena",
+      "args": [
+        "start-mcp-server",
+        "--context=ide",
+        "--enable-web-dashboard=false"
+      ],
+      "timeout": 60000
     }
   }
 }
