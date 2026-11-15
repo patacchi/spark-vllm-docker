@@ -2407,6 +2407,10 @@ The repository includes several pre-configured mods in the `mods/` directory:
 
 - **fix-Salyut1-GLM-4.7-NVFP4/**: Fixes the GLM4MoE parser for Salyut1/GLM-4.7-NVFP4 fused QKV quantization.
 - **fix-glm-4.7-flash-AWQ/**: Applies GLM-4.7-Flash-AWQ compatibility and performance fixes.
+- **fix-glm47-stray-tool-start/**: Adds the missing `(TOOL_NAME, "TOOL_START")` recovery
+  transition to the glm47 tool-call parser so a stray tool-call opener inside prose closes
+  the phantom call and a following real tool call still parses, instead of truncating the
+  rest of the message (upstream vllm#60703).
 - **fix-glm47-unknown-tool-name/**: Stops the glm47 tool-call parser from silently dropping
   tool calls whose function name is not in the request's `tools` list; such calls are now
   returned to the client, which prevents empty `finish_reason="stop"` responses and the
