@@ -80,9 +80,15 @@ too: 154843-154846 special=False, verified via AutoTokenizer):
 - Pattern A (phantom-fallback): EXPERIMENTAL-feature track — RESEARCH spark-vllm-docker's
   experimental convention first (mods/exp-* dirs exist: exp-b12x, exp-w4a16; also check
   issue/PR title/label conventions) before drafting; then decide its PR form.
-- Order: (1) research experimental conventions → (2) draft 3 issues (cross-linked) →
-  (3) SHOW USER the full text of each post and get explicit approval BEFORE posting
-  (standing rule) → (4) PRs after issues, linked.
+- Order: (1) research experimental conventions ✓DONE (see session research memory: no
+  experimental label/process exists; #459 DFlash2 is the precedent — experimental = title/body
+  wording + not in default recipe; PR body pattern = our #462's Overview/Claims/Validation/
+  disclosure) → (2) draft issues → (3) SHOW USER the full text of each post and get explicit
+  approval BEFORE posting (standing rule) → (4) PRs after issues, linked.
+- POST PLAN (user, 2026-11-15): B (unknown-tool-name) = NO new issue; instead UPDATE existing
+  eugr/spark-vllm-docker#463 with (i) why the three mods got separate issues (different upstream
+  removal timings) and (ii) cross-references to the two new issues + upstream. A (phantom-fallback,
+  experimental) and C (stray-tool-start) = NEW issues. Draft texts → user approval → post.
 - Task 3 docs scope: final recipe + plain startup command + this classification (A/B/C)
   in README mod list (+ docs/AGENT_RUNBOOK.md if user wants — pending user answer).
 - Working-state facts: repo=fork patacchi/spark-vllm-docker branch ops-glm53-local
