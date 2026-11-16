@@ -387,6 +387,17 @@ the VS Code workspace to the fork, that memory must be read from
   IMPLICATION: Pattern B's mod (#462) removal timing is approaching (upstream PR may land);
   keep mod-removal-timing wording as-is (already conditional). If their PR changes
   validate_tool_names handling, C/A context-exact hunks may need re-checks.
+- UPSTREAM PR LANDED (2026-11-16 20:33 observed): vllm-project/vllm#67797 (OPEN, by
+  Schrodingerscat07, "Stop dropping unknown tool names in GLM-4.7 parser") = the #67684
+  fix. Same 1-line change as our #462 (validate_tool_names=False) PLUS ling3 flipped too.
+  4414 tests pass; explicitly compatible with #63582/#67480; credits user's live
+  verification + eugr/spark-vllm-docker#462; AI-assisted disclosure included.
+  IMPLICATIONS: (1) Pattern B (#462) removal timing nears once #67797 merges — #463's
+  conditional wording already correct, no edit needed. (2) His diff touches only
+  glm47_moe_config() line 264-ish — C's transition-table hunk and A's overrides unaffected
+  in CONTENT; patch line numbers will shift (context-based apply, fine; test fixtures are
+  context-pinned and remain valid). (3) Re-check our 3 mods' context hunks when we ever
+  rebuild the container on a post-#67797 vLLM.
 - EMAIL PRIVACY FIX (2026-11-16 01:25): Samuel Hartmann / GPUwerk (DGX Spark rental
   vendor, legitimate DKIM/SPF, sent via mailforbots.com outreach service) cold-emailed
   patacchi@patamon.jp — address harvested from COMMIT author metadata (public on GitHub
