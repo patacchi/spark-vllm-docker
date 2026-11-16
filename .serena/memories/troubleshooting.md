@@ -398,6 +398,14 @@ the VS Code workspace to the fork, that memory must be read from
   in CONTENT; patch line numbers will shift (context-based apply, fine; test fixtures are
   context-pinned and remain valid). (3) Re-check our 3 mods' context hunks when we ever
   rebuild the container on a post-#67797 vLLM.
+- UPSTREAM #67480 MENTIONS #67797 (2026-11-16 06:00 comment, observed 20:46): PR adds
+  validate_required_args (reject calls missing schema-required args). Author flagged the
+  "described as opt-in but glm47 config sets True" tension, citing #67797 as the same
+  tension for validate_tool_names — asking maintainers whether to default ON for GLM or
+  off + per-request. NOTE: #67480 re-surfaces a rejected call as CONTENT in its original
+  position — same philosophy as our Pattern A (phantom prose -> content), different scope
+  (missing required args vs prose-like name). If #67480 lands, A gains an upstream
+  partial-counterpart; consider a cross-link note on #465/#467 then. Watch both PRs.
 - EMAIL PRIVACY FIX (2026-11-16 01:25): Samuel Hartmann / GPUwerk (DGX Spark rental
   vendor, legitimate DKIM/SPF, sent via mailforbots.com outreach service) cold-emailed
   patacchi@patamon.jp — address harvested from COMMIT author metadata (public on GitHub
