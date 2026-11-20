@@ -22,9 +22,13 @@
 # (prose 34.1 / code 41.0 / JSON 47.7 t/s), prefill -4%, tool-eval-bench 95/100,
 # needle OK at 225K/451K, MTP acceptance unchanged.
 #
-# PHASE 1 (JIT completion): KV 5G / ctx 300K / util 0.86 to guarantee the flashinfer
-# fused_moe JIT compile finishes in one run (previous attempts died mid-compile on
-# memory pressure; NVFP4 loads 8.6 GiB heavier than FP4-Local and JITs cold).
+# PHASE 1b (JIT completion): KV 5G / ctx 300K / util 0.86 + MAX_JOBS=2. Root cause of
+# every failed attempt: the image bakes MAX_JOBS=16, so flashinfer ran ninja -j16 and
+# 16 concurrent cicc (CUDA compiler) compiles of fused_moe_120 (97 cutlass targets)
+# blew past RAM+swap on the worker node (kernel global OOM 2026-11-21 01:42, trigger
+# process cicc). The spike is host-side and outside per_process_memory_fraction, so
+# KV / utilization reductions could not fix it. MAX_JOBS=2 bounds the spike; compile
+# is slower but one-time (cache volume persists, ninja resumes incrementally).
 # PHASE 2 (after JIT cache is warm): raise to ctx 800K + KV 6-8G in one step.
 
 recipe_version: "1"
@@ -92,7 +96,14 @@ env:
   INSTANTTENSOR_CHUNK_SIZE: "8388608"
   INSTANTTENSOR_CONCURRENCY: "1"
   INSTANTTENSOR_IO_DEPTH: "3"
-  PYTORCH_ALLOC_CONF: "per_process_memory_fraction:0.83"
+  # JIT compile parallelism cap (Phase 1b): image bakes MAX_JOBS=16 -> ninja -j16 ->
+  # 16 concurrent cicc compiles of fused_moe_120 (97 cutlass targets) exhausted
+  # RAM+swap on the worker node. -j2 bounds the host-side spike (outside the torch
+  # allocator cap); compile is slower but one-time — the flashinfer cache volume
+  # persists and ninja resumes incrementally (node1 53/97, node2 27/97 objects).
+  MAX_JOBS: "2"
+  FLASHINFER_JIT_PREBUILD_MAX_JOBS: "2"
+  NINJAFLAGS: "-j2"
 
 command: |
   vllm serve nvidia/GLM-5.3-Flash-NVFP4 \
