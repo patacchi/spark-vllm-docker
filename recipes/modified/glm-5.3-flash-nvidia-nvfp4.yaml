@@ -59,7 +59,7 @@ defaults:
   num_speculative_tokens: 3
   max_cudagraph_capture_size: 16
   kv_cache_memory_bytes: 8G
-  gpu_memory_utilization: 0.86
+  gpu_memory_utilization: 0.83
 
 env:
   HF_HUB_OFFLINE: "1"
@@ -111,7 +111,7 @@ command: |
     --moe-backend b12x \
     --linear-backend b12x \
     --no-enable-flashinfer-autotune \
-    --load-format instanttensor \
+    --load-format b12x \
     --max-model-len {max_model_len} \
     --max-num-seqs {max_num_seqs} \
     --max-num-batched-tokens {max_num_batched_tokens} \
@@ -120,10 +120,10 @@ command: |
     --max-num-prefill-tokens-per-step 1024 \
     --max-cudagraph-capture-size {max_cudagraph_capture_size} \
     --kv-cache-memory-bytes {kv_cache_memory_bytes} \
+    --speculative-config '{{"method":"mtp","num_speculative_tokens":{num_speculative_tokens},"moe_backend":"auto","attention_backend":"B12X"}}' \
     --reasoning-parser glm45 \
     --tool-call-parser glm47 \
     --enable-auto-tool-choice \
     --exclude-tools-when-tool-choice-none \
     --chat-template /tmp/glm53-nvidia-chat-template.jinja \
-    --gpu-memory-utilization {gpu_memory_utilization} \
-    --served-model-name glm-5.3-flash
+    --gpu-memory-utilization {gpu_memory_utilization}
