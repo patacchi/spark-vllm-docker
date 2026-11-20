@@ -82,6 +82,9 @@ env:
   VLLM_GLM53_ONLINE_NVFP4_A16: "1"
   # allocator policy (issue #441): keep freed weight-processing blocks reclaimable
   PYTORCH_CUDA_ALLOC_CONF: "expandable_segments:True"
+  # dev endpoints (/server_info, /tokenize, /reset_prefix_cache, ...) — /metrics is
+  # always on; DEV_MODE gates only the operational dev routes
+  VLLM_SERVER_DEV_MODE: "1"
   INSTANTTENSOR_BACKEND: "BUFFERED"
   INSTANTTENSOR_BUFFER_SIZE: "67108864"
   INSTANTTENSOR_CHUNK_SIZE: "8388608"
