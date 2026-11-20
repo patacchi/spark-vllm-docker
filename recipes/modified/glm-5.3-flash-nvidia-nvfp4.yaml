@@ -2,9 +2,10 @@
 # Based on eugr/spark-vllm-docker PR #421 (vedcsolution), adapted for this deployment:
 #
 # Changes vs PR #421:
-# - max_model_len 524288 -> 800000 (matches the ops FP4-Local recipe); KV pool 8G.
-#   MEASURED on this deployment: nvfp4_ds_mla pool = 4.99 KiB/token (KV 5G run
-#   showed 1,067,307 tokens for 5.0 GiB), so 8G ≈ 1.71M tokens = 800K x 2.1 parallel.
+# - max_model_len 524288 -> 800000 (matches the ops FP4-Local recipe); KV pool 7G.
+#   MEASURED on this deployment: nvfp4_ds_mla pool density is ctx-dependent —
+#   4.99 KiB/token at 300K ctx, 3.06 KiB/token at 800K ctx (bigger sequences
+#   amortize the per-seq mamba state), so 7G ≈ 2.38M tokens = 800K x 2.98 parallel.
 # - mods/fix-glm47-unknown-tool-name, mods/fix-glm47-stray-tool-start,
 #   mods/fix-glm47-phantom-fallback added (glm47 parser fixes; disjoint patch regions
 #   from the PR #421 mods, all 8 verified applicable on the current image build).
@@ -29,9 +30,13 @@
 # process cicc). The spike is host-side and outside per_process_memory_fraction, so
 # KV / utilization reductions could not fix it. MAX_JOBS=2 bounds the spike; compile
 # is slower but one-time (cache volume persists, ninja resumes incrementally).
-# PHASE 2 (JIT warm, current): ctx 800K + KV 8G + util 0.84. cap 102.2 >= weights
-# 92.38 + activations ~1.3 + KV 8.0 = 101.7 (margin 0.5G — thin; fallback KV 7G).
-# expandable_segments restored after the Phase 1 edit dropped it from env.
+# PHASE 2 (JIT warm, current): ctx 800K + KV 7G + util 0.84. KV 8G + util 0.84 was
+# attempted first and OOM'd AFTER the KV capacity line (2,721,839 tokens) during
+# warmup/first requests — at 800K the activation estimate (weights 92.38 + ~1.3
+# activations + KV 8.0 = 101.7 vs cap 102.2) leaves only 0.5G, which is not enough
+# headroom. KV 7G came up healthy: pool 2,381,609 tokens, 2.98x concurrency at
+# 800K. expandable_segments restored after the Phase 1 edit dropped it from env
+# (verified live: 1.43 GiB of cached CUDA allocator freed before KV alloc).
 
 recipe_version: "1"
 name: GLM-5.3-Flash-NVFP4-NVIDIA-ops
@@ -66,7 +71,7 @@ defaults:
   max_num_batched_tokens: 2048
   num_speculative_tokens: 3
   max_cudagraph_capture_size: 16
-  kv_cache_memory_bytes: 8G
+  kv_cache_memory_bytes: 7G
   gpu_memory_utilization: 0.84
 
 env:
