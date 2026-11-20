@@ -120,7 +120,7 @@ command: |
     --max-num-prefill-tokens-per-step 1024 \
     --max-cudagraph-capture-size {max_cudagraph_capture_size} \
     --kv-cache-memory-bytes {kv_cache_memory_bytes} \
-    --speculative-config '{{"method":"mtp","num_speculative_tokens":{num_speculative_tokens},"moe_backend":"auto","attention_backend":"B12X"}}' \
+    --speculative-config '{{"method":"mtp","num_speculative_tokens":{num_speculative_tokens},"moe_backend":"humming","attention_backend":"B12X"}}' \
     --reasoning-parser glm45 \
     --tool-call-parser glm47 \
     --enable-auto-tool-choice \
