@@ -1,0 +1,126 @@
+# Recipe: GLM-5.3-Flash-NVFP4 (NVIDIA checkpoint, ops 800K variant)
+# Based on eugr/spark-vllm-docker PR #421 (vedcsolution), adapted for this deployment:
+#
+# Changes vs PR #421:
+# - max_model_len 524288 -> 800000 (matches the ops FP4-Local recipe); KV pool raised
+#   6G -> 8G (nvfp4_ds_mla is ~2.2x denser per token than fp8; 8G ≈ 2.1M tokens, so a
+#   single 800K sequence fits with room for concurrency).
+# - mods/fix-glm47-unknown-tool-name, mods/fix-glm47-stray-tool-start,
+#   mods/fix-glm47-phantom-fallback added (glm47 parser fixes; disjoint patch regions
+#   from the PR #421 mods, all 8 verified applicable on the current image build).
+# - mods/glm53-port-fork862-prefill-decode-latency REMOVED: its anchors target the
+#   older fork build (ab86b7073); this build (8244d1c44) already ships the equivalent
+#   scheduling feature natively (prefill_compute_share + max_num_prefill_tokens_per_step,
+#   contended-step prefill cap), so the mod is redundant here.
+# - revision updated 09b04e5e -> 1d007386 (Oct 28 re-export with the routed-expert
+#   weight_scale_2 calibration fix; the Oct 3 revision reasoned ~44% longer on SciCode).
+# - PYTORCH_CUDA_ALLOC_CONF: expandable_segments:True adopted per issue #441 (keeps
+#   6-7 GiB more MemAvailable after weight load on unified-memory GB10s; this recipe
+#   runs at KV 8G + util 0.86, so the headroom matters).
+#
+# PR #421 measured (older build, 512K, KV 6G): decode +23-27% vs BF16-dense baseline
+# (prose 34.1 / code 41.0 / JSON 47.7 t/s), prefill -4%, tool-eval-bench 95/100,
+# needle OK at 225K/451K, MTP acceptance unchanged.
+#
+# Memory is tight: expect ~1 GiB head-node headroom after warmup at util 0.86 + 8G KV.
+# Lower kv_cache_memory_bytes if nodes run desktops or other services.
+
+recipe_version: "1"
+name: GLM-5.3-Flash-NVFP4-NVIDIA-ops
+description: vLLM serving nvidia/GLM-5.3-Flash-NVFP4 on a dual DGX Spark cluster (TP2+DCP2, MTP k3, 800K ctx, online NVFP4 dense layers, glm47 parser fixes)
+
+model: nvidia/GLM-5.3-Flash-NVFP4
+container: vllm-node-b12x
+
+build_args:
+  - --exp-b12x
+
+cluster_only: true
+
+mods:
+  - mods/fix-spec-accepted-clamp-upstream
+  - mods/glm53-thinking-template-nvidia
+  - mods/glm53-nvidia-mtp-unquantized
+  - mods/glm53-nvidia-online-mxfp8
+  - mods/fix-glm47-unknown-tool-name
+  - mods/fix-glm47-stray-tool-start
+  - mods/fix-glm47-phantom-fallback
+
+defaults:
+  port: 8000
+  host: 0.0.0.0
+  tensor_parallel: 2
+  pipeline_parallel: 1
+  decode_context_parallel: 2
+  block_size: 256
+  max_model_len: 800000
+  max_num_seqs: 3
+  max_num_batched_tokens: 2048
+  num_speculative_tokens: 3
+  max_cudagraph_capture_size: 16
+  kv_cache_memory_bytes: 8G
+  gpu_memory_utilization: 0.86
+
+env:
+  HF_HUB_OFFLINE: "1"
+  TRANSFORMERS_OFFLINE: "1"
+  CUTE_DSL_ARCH: "sm_121a"
+  VLLM_ENABLE_ROCE_ALLREDUCE: "1"
+  VLLM_ROCE_ALLREDUCE_MAX_SIZE: "2MB"
+  VLLM_WORKER_MULTIPROC_METHOD: "spawn"
+  VLLM_SSM_CONV_STATE_LAYOUT: "DS"
+  VLLM_USE_AOT_COMPILE: "1"
+  VLLM_USE_MEGA_AOT_ARTIFACT: "1"
+  VLLM_USE_V2_MODEL_RUNNER: "1"
+  VLLM_ENABLE_PCIE_ALLREDUCE: "0"
+  VLLM_B12X_MLA_CKV_GATHER: "1"
+  VLLM_B12X_MLA_CKV_GATHER_MAX_TOKENS: "65536"
+  # online quantization of the BF16 dense layers (mod glm53-nvidia-online-mxfp8)
+  VLLM_GLM53_ONLINE_MXFP8: "attn,shared"
+  VLLM_GLM53_ONLINE_MXFP8_A16: "0"
+  VLLM_GLM53_ONLINE_NVFP4: "shared,oproj,qkv"
+  VLLM_GLM53_ONLINE_NVFP4_A16: "1"
+  # allocator policy (issue #441): keep freed weight-processing blocks reclaimable
+  PYTORCH_CUDA_ALLOC_CONF: "expandable_segments:True"
+  INSTANTTENSOR_BACKEND: "BUFFERED"
+  INSTANTTENSOR_BUFFER_SIZE: "67108864"
+  INSTANTTENSOR_CHUNK_SIZE: "8388608"
+  INSTANTTENSOR_CONCURRENCY: "1"
+  INSTANTTENSOR_IO_DEPTH: "3"
+
+command: |
+  vllm serve nvidia/GLM-5.3-Flash-NVFP4 \
+    --revision 1d00738646cbb0c6d0a9eb403dac5f366f1473a7 \
+    --host {host} \
+    --port {port} \
+    --tensor-parallel-size {tensor_parallel} \
+    --pipeline-parallel-size {pipeline_parallel} \
+    --decode-context-parallel-size {decode_context_parallel} \
+    --cp-kv-cache-interleave-size 4 \
+    --mamba-cache-mode align \
+    --enable-prefix-caching \
+    --enable-chunked-prefill \
+    --dtype bfloat16 \
+    --kv-cache-dtype nvfp4_ds_mla \
+    --quantization modelopt_mixed \
+    --attention-backend B12X \
+    --block-size {block_size} \
+    --moe-backend b12x \
+    --linear-backend b12x \
+    --no-enable-flashinfer-autotune \
+    --load-format instanttensor \
+    --max-model-len {max_model_len} \
+    --max-num-seqs {max_num_seqs} \
+    --max-num-batched-tokens {max_num_batched_tokens} \
+    --prefill-compute-share auto \
+    --max-parallel-prefills 2 \
+    --max-num-prefill-tokens-per-step 1024 \
+    --max-cudagraph-capture-size {max_cudagraph_capture_size} \
+    --kv-cache-memory-bytes {kv_cache_memory_bytes} \
+    --reasoning-parser glm45 \
+    --tool-call-parser glm47 \
+    --enable-auto-tool-choice \
+    --exclude-tools-when-tool-choice-none \
+    --chat-template /tmp/glm53-nvidia-chat-template.jinja \
+    --gpu-memory-utilization {gpu_memory_utilization} \
+    --served-model-name glm-5.3-flash
