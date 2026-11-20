@@ -22,8 +22,10 @@
 # (prose 34.1 / code 41.0 / JSON 47.7 t/s), prefill -4%, tool-eval-bench 95/100,
 # needle OK at 225K/451K, MTP acceptance unchanged.
 #
-# Memory is tight: expect ~1 GiB head-node headroom after warmup at util 0.86 + 8G KV.
-# Lower kv_cache_memory_bytes if nodes run desktops or other services.
+# PHASE 1 (JIT completion): KV 5G / ctx 300K / util 0.86 to guarantee the flashinfer
+# fused_moe JIT compile finishes in one run (previous attempts died mid-compile on
+# memory pressure; NVFP4 loads 8.6 GiB heavier than FP4-Local and JITs cold).
+# PHASE 2 (after JIT cache is warm): raise to ctx 800K + KV 6-8G in one step.
 
 recipe_version: "1"
 name: GLM-5.3-Flash-NVFP4-NVIDIA-ops
@@ -53,13 +55,13 @@ defaults:
   pipeline_parallel: 1
   decode_context_parallel: 2
   block_size: 256
-  max_model_len: 800000
+  max_model_len: 300000
   max_num_seqs: 3
   max_num_batched_tokens: 2048
   num_speculative_tokens: 3
   max_cudagraph_capture_size: 16
-  kv_cache_memory_bytes: 8G
-  gpu_memory_utilization: 0.83
+  kv_cache_memory_bytes: 5G
+  gpu_memory_utilization: 0.86
 
 env:
   HF_HUB_OFFLINE: "1"
@@ -81,7 +83,7 @@ env:
   VLLM_GLM53_ONLINE_NVFP4: "shared,oproj,qkv"
   VLLM_GLM53_ONLINE_NVFP4_A16: "1"
   # allocator policy (issue #441): keep freed weight-processing blocks reclaimable
-  PYTORCH_CUDA_ALLOC_CONF: "expandable_segments:True"
+  PYTORCH_ALLOC_CONF: "per_process_memory_fraction:0.86"
   # dev endpoints (/server_info, /tokenize, /reset_prefix_cache, ...) — /metrics is
   # always on; DEV_MODE gates only the operational dev routes
   VLLM_SERVER_DEV_MODE: "1"
@@ -90,6 +92,7 @@ env:
   INSTANTTENSOR_CHUNK_SIZE: "8388608"
   INSTANTTENSOR_CONCURRENCY: "1"
   INSTANTTENSOR_IO_DEPTH: "3"
+  PYTORCH_ALLOC_CONF: "per_process_memory_fraction:0.83"
 
 command: |
   vllm serve nvidia/GLM-5.3-Flash-NVFP4 \
