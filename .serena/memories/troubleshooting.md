@@ -208,6 +208,47 @@ the VS Code workspace to the fork, that memory must be read from
   (context=vscode, project=eugr) from the old setup — harmless for the new workspace but
   candidates for cleanup per the skill's reconciliation ladder if they misbehave.
 
+## NVFP4 evaluation (2026-11-20/21) — PR #421 adaptation, PHASE 1 READY
+
+- Goal: evaluate nvidia/GLM-5.3-Flash-NVFP4 (official checkpoint) vs our FP4-Local baseline.
+- Baseline (FP4-Local, llama-benchy 0.2.2, T=0, thinking off, tg128, pp2048/8192,
+  depth 0/16k/64k, 3 runs): pp 1.8-1.9k t/s, tg 28.6→20.5 t/s by depth, peak 39-43,
+  e2e TTFT 1.5s→40s by depth, 1-token latency 33.9ms. Saved: ~/bench-results/
+  baseline_fp4local_1120-2020.json.
+- llama-benchy installed via uv tool (~/llama-benchy from tarball; SETUPTOOLS_SCM_PRETEND_VERSION=0.2.2
+  needed; PATH ~/.local/bin). Gutenberg 503 → corpus cache seeded at ~/.cache/llama-benchy/
+  <md5>.txt from gutenberg.net.au. extra-body: temperature=0,chat_template_kwargs={"thinking":false}.
+- Download saga: Xet CAS timeouts on reconstruction (repeated fails at ~52%);
+  HF_HUB_DISABLE_XET=1 fallback works (all files <9GB); DONE 204.5GB 44/44 both nodes.
+  noXET script at ~/gitrepos/eugr/spark-vllm-docker/hf-download_noXET.sh (rsync -avL
+  --copy-links — shared-store symlinks to hub/blobs must be dereferenced or node2 gets
+  29 dangling links; fixed, re-copied 180.8GB in 11:40 over CX7).
+- Recipes created: recipes/glm-5.3-flash-nvidia-nvfp4.yaml (PR421 original, import) +
+  recipes/modified/glm-5.3-flash-nvidia-nvfp4.yaml (ops). Commits 85e00ab, 33bba1e
+  (restore --speculative-config — my transcription had DROPPED it: server ran MTP-less
+  once), 2152030 (moe_backend auto→humming: 'auto' picked FlashInferExperts for the
+  unquantized drafter MoE → fused_moe_120 JIT compile → worker killed silently mid-compile
+  00:06:39 JST; exit None, no traceback, no NVRM entry), b9b1f35 (PHASE 1).
+- Memory analysis (FP4-Local vs NVFP4): model 83.62 vs 92.22 GiB (+8.6: online-quant
+  transients — BF16 originals + NVFP4 copies during conversion); KV 8G both; at 0.83 the
+  steady state filled the per-process cap (0.7 GiB headroom) → JIT spike → swap exhaustion
+  (node2 swap 16GB→40GB, still nearly exhausted). FP4-Local: 8.1 GiB headroom + warm JIT
+  cache (112 keys, 0.34s) — that's why FP4 never trips.
+- per_process_memory_fraction does NOT reduce pressure: caps torch allocs, pushes overflow
+  to host RAM/swap (unified memory) — wrong direction for JIT spikes.
+- JIT cache: ~/.cache/flashinfer/<ver>/121a/cached_ops/<kernel> persists across container
+  recreation (volume-mounted). Half-built fused_moe_120 (78 files, 0 .so) REMOVED
+  (root-owned; via busybox container; sudo needs password — docker-run busybox is the trick).
+- PHASE 1 (current, commit b9b1f35): KV 5G / max_model_len 300000 / util 0.86 /
+  PYTORCH_ALLOC_CONF per_process_memory_fraction:0.86 — goal: ONE clean run with JIT
+  completing. PHASE 2 (after warm JIT cache): ctx 800K + KV 6-8G in one step.
+- Server state: FP4-Local is up (user's manual restart); NVFP4 phase-1 launch = user action
+  (stop both containers → run-recipe recipes/modified/glm-5.3-flash-nvidia-nvfp4.yaml).
+- Next: verify JIT completes → cache warm → verify mods (7) + MTP acceptance → llama-benchy
+  NVFP4 run → comparison table vs baseline → phase 2 (800K).
+- gpg-agent instability under memory pressure (pinentry timeouts) — after a host restart
+  signing works again; commits carry %G? G.
+
 ## clear_thinking verified (2026-11-15; user tested false, then reverted to true)
 
 - Template-verified: clear_thinking only affects PAST-turn reasoning blocks in the prompt history
