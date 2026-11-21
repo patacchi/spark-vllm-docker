@@ -71,8 +71,8 @@ defaults:
   max_num_batched_tokens: 2048
   num_speculative_tokens: 3
   max_cudagraph_capture_size: 16
-  kv_cache_memory_bytes: 7G
-  gpu_memory_utilization: 0.84
+  kv_cache_memory_bytes: 6.5g
+  gpu_memory_utilization: 0.83
 
 env:
   HF_HUB_OFFLINE: "1"
@@ -97,7 +97,7 @@ env:
   # One combined var: torch 2.13 ignores the old-name var when the new-name one is
   # set, so per_process_memory_fraction (mirrors gpu_memory_utilization) and
   # expandable_segments live together here.
-  PYTORCH_ALLOC_CONF: "per_process_memory_fraction:0.84,expandable_segments:True"
+  PYTORCH_ALLOC_CONF: "per_process_memory_fraction:0.83,expandable_segments:True"
   # dev endpoints (/server_info, /tokenize, /reset_prefix_cache, ...) — /metrics is
   # always on; DEV_MODE gates only the operational dev routes
   VLLM_SERVER_DEV_MODE: "1"
