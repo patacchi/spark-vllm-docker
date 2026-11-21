@@ -454,6 +454,20 @@ the VS Code workspace to the fork, that memory must be read from
   in CONTENT; patch line numbers will shift (context-based apply, fine; test fixtures are
   context-pinned and remain valid). (3) Re-check our 3 mods' context hunks when we ever
   rebuild the container on a post-#67797 vLLM.
+- MOD3 (phantom->content) UPSTREAM STATUS as of 2026-11-22 (user asked for progress):
+  NO direct implementation of "prose-name -> content" fallback exists upstream yet.
+  Closest development = vllm#67480 (validate_required_args, by perrypeng-peng, review
+  by smiyamoto3): a call missing REQUIRED ARGS is withheld then re-surfaced as CONTENT
+  at its original position (slot.invalid + fallback_content mechanism, engine-level,
+  548 lines added across parser_engine.py/config/glm47_moe/utils). BUT its scope is
+  ARGUMENT-schema rejection only — it does NOT cover NAME rejection (mod3's phantom
+  prose case); `_accept_tool_name` interaction untouched. Review is ACTIVE (Nov 14-20:
+  smiyamoto3 driving perf fixes — 88k-char arg rescan O(n) fixed, key-literal matching
+  fixed; author rebasing after mergify conflict notice Nov 18). The PHILOSOPHY ("nothing
+  the model emitted is ever silently lost; rejected calls return as content") is now
+  IN upstream review — mod3's approach is directionally validated, and a future
+  generalization to name-rejection is plausible but NOT yet proposed by anyone.
+  Our #465/#467 remain the only implementation of the name-phantom rescue.
 - UPSTREAM #67480 MENTIONS #67797 (2026-11-16 06:00 comment, observed 20:46): PR adds
   validate_required_args (reject calls missing schema-required args). Author flagged the
   "described as opt-in but glm47 config sets True" tension, citing #67797 as the same
