@@ -70,6 +70,29 @@ Fit over 4 measured points (incl. PR #421's reported 6G → 1,711,646):
   during warmup/first requests: 0.5G margin insufficient at 800K (activations
   larger than the 1.3G estimate). KV 7G and 6.5G both come up healthy.
 
+## Parser-mod compatibility verification on NVFP4 (2026-11-22, user-requested)
+
+- LIVE (all 7 mods: 421's 5 + our 3) — PASS:
+  - known-name call → tool_calls (get_weather Tokyo, args exact)
+  - unknown-name imitation → DELIVERED (mod1) — finish=tool_calls
+  - unclosed phantom + prose tail (non-stream) → content restored verbatim (mod3 sweep)
+  - phantom + real call combo (stream) → prose rescued as content + real call index1 args
+    correct ("{\"city\": \"Tokyo\"}"); cosmetic: a stray closer glyph can ride in an arg
+    delta (model re-typing syntax in args — model-side artifact)
+  - no-tools (stop, "OK-NOTOOLS") + Japanese multi-tool (3 calls exact) — regressions clean
+  - engine log clean; 421's spec-clamp patch present (scheduler clamp code), online-mxfp8
+    (6 refs), fork862 prefill (29 refs), thinking-template jinja in /tmp
+- PRE-MOD reproduction (in-container, validate_tool_names=True emulation):
+  - unknown-name call → silently dropped (tool_calls=0, content=None) — REPRODUCES on the
+    NVFP4 build (same glm47 parser, same build 8244d1c44): mod1 is REQUIRED on this recipe too
+  - stray opener + prose + real call (parse()) → prose swallowed (content=None) — mod2/3
+    target confirmed; real call survives but args={} (arg capture consumed by the phantom
+    closure path in the direct-parse test; live path streams args correctly)
+- CONCLUSION: all 3 glm47 mods are REQUIRED on NVFP4 as well; no conflicts with PR 421's
+  5 mods (disjoint files/regions). Serving FP4-Local and NVFP4 with the same mod set works.
+- NOTE: probe scripts double-encoded JSON once (HTTP 400 'Input should be a valid
+  dictionary') — use json.dumps once.
+
 ## Artifacts
 
 - ~/bench-results/nvfp4_phase2_kv7g.{json,log}      — Phase 2 standalone (7G)
