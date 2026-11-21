@@ -93,6 +93,41 @@ Fit over 4 measured points (incl. PR #421's reported 6G → 1,711,646):
 - NOTE: probe scripts double-encoded JSON once (HTTP 400 'Input should be a valid
   dictionary') — use json.dumps once.
 
+## HOW TO VERIFY A MOD (methodology, reusable — user-requested 2026-11-22)
+
+Four verification layers, in the order we actually use them:
+
+1. **Patch-level (fastest, repo-side, no container needed)**:
+   `tests/test_fix_<mod>_mod.sh` — self-contained bash test: builds a FIXTURE FILE
+   (heredoc-shaped copy of the pinned container file region) in a temp dir, applies the
+   mod's run.sh against it via `VLLM_PACKAGE_ROOT=<tmpdir>/vllm`, asserts (a) the
+   applied token exists (grep -F), (b) `python3 -c "import ast; ast.parse(...)"`,
+   (c) idempotent re-run is a no-op, (d) negative drift: a MUTATED fixture fails the
+   apply (fail-closed). Runs anywhere with python3; no GPU, no docker.
+
+2. **In-container parser-level (no server restart)**:
+   `docker exec vllm_node python3` — import the patched module directly from
+   `/usr/local/lib/python3.12/dist-packages/vllm/parser/glm47_moe.py`, build a
+   `Glm47MoeParser` with a real tokenizer
+   (`AutoTokenizer.from_pretrained("/root/.cache/huggingface/hub/models--<model>/snapshots/<rev>",
+   trust_remote_code=True)`), feed synthetic text via `parse_delta`/`extract_tool_calls`.
+   Pitfall: feeding the WHOLE text as one delta vs char-by-char vs TOKENIZED
+   (upstream-repro style: `tokenizers.decoders.DecodeStream(skip_special_tokens=False)`
+   + real token ids) can differ; tokenized style is the faithful one. Test markers must
+   be built from module constants (mod.TOOL_CALL_START etc.), never visually copied.
+   For PRE-MOD emulation: `dataclasses.replace(cfg, validate_tool_names=True)` (the
+   config dataclass is frozen — plain assignment raises FrozenInstanceError).
+
+3. **Live server (needs user-approved restart)**: real requests against
+   /v1/chat/completions — probes A (unclosed+tail), B (phantom+real call),
+   C (unknown-name imitation via history), D (non-streaming), E (no-tools/multi-tool
+   regressions). Streaming responses parsed as SSE; tool calls reassembled by index.
+   The model can't reliably echo exact marker structures — deterministic paths go
+   through (2), not (3).
+
+4. **Recipe/test suites**: `./tests/test_recipes.sh` (68 tests) + recipe --dry-run to
+   confirm the --apply-mod flags order.
+
 ## Artifacts
 
 - ~/bench-results/nvfp4_phase2_kv7g.{json,log}      — Phase 2 standalone (7G)
