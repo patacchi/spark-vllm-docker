@@ -110,6 +110,21 @@ Pattern B (pre-empts upstream, applies to current release as-is):
   (context-free 1-line hunk). PR eugr/spark-vllm-docker#462 carries it upstream-of-us.
 
 Pattern C (pre-empts upstream, does NOT apply to the dev build as-is):
+
+RE-VERIFIED 2026-11-22 (user asked "did the upstream data-format change still block?"):
+- upstream PR #60842 AND #60813 both now apply CLEANLY to current vllm main
+  (dry-run verified: the hunks' context matches; #60842 was rebased Oct 20 — that fixed
+  the stale context). The ORIGINAL blocker (PR diff vs drifted main) is GONE on main.
+- The REAL divergence is between OUR BUILD and upstream main: our build
+  (local-inference-lab fork, 8244d1c44) has EXTRA parser states (TOOL_BETWEEN,
+  TOOL_ARG_END_PENDING) and a richer arg_tag_transitions (data-detection comment) that
+  upstream main LACKS (main: TOOL_NAME→TOOL_ARGS direct; ours: TOOL_NAME→TOOL_BETWEEN→TOOL_ARGS).
+  arg_tag_transitions itself existed upstream since the engine port (6c379b9, Jun 18) —
+  the "folded into main dict" earlier note was wrong: BOTH have a separate dict; the
+  CONTENT differs. Our build ≈ a superset/different-branch of the state machine.
+- Hence: mod2's context-exact 4-line insertion remains REQUIRED for OUR build; upstream
+  PRs would apply only to vllm main (not our build). #60842 still OPEN (no review),
+  #60813 OPEN (no movement) — upstream fix not merged as of 2026-11-22.
 - fix-glm47-stray-tool-start: implements vllm#60842/#60813's (TOOL_NAME,"TOOL_START")
   recovery transition, but as a context-exact 4-line insertion for OUR build (upstream
   diff context drifted: our build splices arg_tag_transitions separately; upstream folded
